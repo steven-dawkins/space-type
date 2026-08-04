@@ -1,33 +1,39 @@
-import { OrbitControls } from '@react-three/drei'
-import { Canvas, useFrame } from '@react-three/fiber'
-import { useRef } from 'react'
-import type { Mesh } from 'three'
-
-function SpinningCube() {
-  const meshRef = useRef<Mesh>(null)
-
-  useFrame((_state, delta) => {
-    if (!meshRef.current) return
-    meshRef.current.rotation.x += delta * 0.5
-    meshRef.current.rotation.y += delta * 0.8
-  })
-
-  return (
-    <mesh ref={meshRef}>
-      <boxGeometry args={[1.5, 1.5, 1.5]} />
-      <meshStandardMaterial color="#aa3bff" />
-    </mesh>
-  )
-}
+import { Stars } from '@react-three/drei'
+import { Canvas } from '@react-three/fiber'
+import { Spaceship } from './components/Spaceship'
+import { TypingChallenge } from './components/TypingChallenge'
+import { useTypingChallenge } from './hooks/useTypingChallenge'
 
 function App() {
+  const { text, cursor, hasError, isComplete, progress, restart } = useTypingChallenge()
+
   return (
-    <Canvas camera={{ position: [3, 3, 3], fov: 50 }}>
-      <ambientLight intensity={0.5} />
-      <directionalLight position={[5, 5, 5]} intensity={1} />
-      <SpinningCube />
-      <OrbitControls />
-    </Canvas>
+    <div className="game">
+      <div className="scene">
+        <Canvas camera={{ position: [0, 1.5, 6], fov: 50 }}>
+          <color attach="background" args={['#05060a']} />
+          <ambientLight intensity={0.6} />
+          <directionalLight position={[5, 5, 5]} intensity={1} />
+          <Stars radius={50} depth={30} count={2000} factor={2} fade speed={0.5} />
+          <Spaceship progress={progress} />
+        </Canvas>
+      </div>
+
+      <div className="hud">
+        <TypingChallenge text={text} cursor={cursor} hasError={hasError} />
+        <div className="status">
+          {isComplete ? (
+            <button type="button" onClick={restart}>
+              Next line
+            </button>
+          ) : (
+            <span className="hint">
+              {hasError ? 'Wrong key — try again' : 'Start typing…'}
+            </span>
+          )}
+        </div>
+      </div>
+    </div>
   )
 }
 
