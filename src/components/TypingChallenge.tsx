@@ -1,16 +1,15 @@
 interface TypingChallengeProps {
   text: string
-  cursor: number
-  hasError: boolean
+  typed: string
 }
 
-export function TypingChallenge({ text, cursor, hasError }: TypingChallengeProps) {
+export function TypingChallenge({ text, typed }: TypingChallengeProps) {
   return (
     <p className="typing-text">
       {text.split('').map((char, index) => {
         let className = 'pending'
-        if (index < cursor) className = 'correct'
-        else if (index === cursor) className = hasError ? 'error' : 'current'
+        if (index < typed.length) className = typed[index] === char ? 'correct' : 'error'
+        else if (index === typed.length) className = 'current'
 
         return (
           <span key={index} className={className}>

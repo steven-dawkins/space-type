@@ -5,7 +5,7 @@ import { TypingChallenge } from './components/TypingChallenge'
 import { useTypingChallenge } from './hooks/useTypingChallenge'
 
 function App() {
-  const { text, cursor, hasError, isComplete, progress, wpm, restart } = useTypingChallenge()
+  const { text, typed, hasMistake, isComplete, progress, wpm, restart } = useTypingChallenge()
 
   return (
     <div className="game">
@@ -22,7 +22,7 @@ function App() {
 
       <div className="hud">
         <div className="wpm">{wpm} WPM</div>
-        <TypingChallenge text={text} cursor={cursor} hasError={hasError} />
+        <TypingChallenge text={text} typed={typed} />
         <div className="status">
           {isComplete ? (
             <button type="button" onClick={restart}>
@@ -30,7 +30,7 @@ function App() {
             </button>
           ) : (
             <span className="hint">
-              {hasError ? 'Wrong key — try again' : 'Start typing…'}
+              {hasMistake ? 'Backspace to fix the mistake' : 'Start typing…'}
             </span>
           )}
         </div>
