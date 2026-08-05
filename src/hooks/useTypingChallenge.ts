@@ -13,6 +13,7 @@ interface TypingState {
   cursor: number
   hasError: boolean
   isComplete: boolean
+  startTime: number | null
 }
 
 function nextSample(prevText: string): TypingState {
@@ -21,15 +22,23 @@ function nextSample(prevText: string): TypingState {
     cursor: 0,
     hasError: false,
     isComplete: false,
+    startTime: null,
   }
 }
 
 export function useTypingChallenge() {
   const [state, setState] = useState<TypingState>(() => nextSample(''))
+  const [, forceTick] = useState(0)
 
   const restart = useCallback(() => {
     setState((prev) => nextSample(prev.text))
   }, [])
+
+  useEffect(() => {
+    if (!state.startTime || state.isComplete) return
+    const interval = setInterval(() => forceTick((t) => t + 1), 500)
+    return () => clearInterval(interval)
+  }, [state.startTime, state.isComplete])
 
   useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {
@@ -57,6 +66,7 @@ export function useTypingChallenge() {
           cursor,
           hasError: false,
           isComplete: cursor === prev.text.length,
+          startTime: prev.startTime ?? Date.now(),
         }
       })
     }
@@ -65,12 +75,16 @@ export function useTypingChallenge() {
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [])
 
+  const elapsedMinutes = state.startTime ? (Date.now() - state.startTime) / 60000 : 0
+  const wpm = elapsedMinutes > 0 ? Math.round(state.cursor / 5 / elapsedMinutes) : 0
+
   return {
     text: state.text,
     cursor: state.cursor,
     hasError: state.hasError,
     isComplete: state.isComplete,
     progress: state.cursor / state.text.length,
+    wpm,
     restart,
   }
 }

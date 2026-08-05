@@ -5,7 +5,7 @@ import { TypingChallenge } from './components/TypingChallenge'
 import { useTypingChallenge } from './hooks/useTypingChallenge'
 
 function App() {
-  const { text, cursor, hasError, isComplete, progress, restart } = useTypingChallenge()
+  const { text, cursor, hasError, isComplete, progress, wpm, restart } = useTypingChallenge()
 
   return (
     <div className="game">
@@ -14,12 +14,14 @@ function App() {
           <color attach="background" args={['#05060a']} />
           <ambientLight intensity={0.6} />
           <directionalLight position={[5, 5, 5]} intensity={1} />
+          <directionalLight position={[-4, 2, 3]} intensity={0.4} color="#88aaff" />
           <Stars radius={50} depth={30} count={2000} factor={2} fade speed={0.5} />
           <Spaceship progress={progress} />
         </Canvas>
       </div>
 
       <div className="hud">
+        <div className="wpm">{wpm} WPM</div>
         <TypingChallenge text={text} cursor={cursor} hasError={hasError} />
         <div className="status">
           {isComplete ? (
