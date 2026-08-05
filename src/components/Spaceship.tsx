@@ -1,11 +1,17 @@
-import { useFrame, useLoader } from '@react-three/fiber'
+import { useGLTF } from '@react-three/drei'
+import { useFrame } from '@react-three/fiber'
 import { useMemo, useRef } from 'react'
 import { MathUtils, type Group } from 'three'
-import { MTLLoader } from 'three/examples/jsm/loaders/MTLLoader.js'
-import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader.js'
 
 const TRACK_HALF_WIDTH = 4
-const MODEL_SCALE = 0.07
+const MODEL_SCALE = 0.1
+const MODEL_URL = '/models/spaceship.glb'
+
+// Local-space positions of the model's own `engine_main_01`/`engine_main_02` locator nodes.
+const ENGINE_POSITIONS: Array<[number, number, number]> = [
+  [0.6672689914703369, 0.11416742205619812, -4.206867218017578],
+  [-0.6703824996948242, 0.11814286559820175, -4.207581520080566],
+]
 
 interface SpaceshipProps {
   progress: number
@@ -13,13 +19,8 @@ interface SpaceshipProps {
 
 export function Spaceship({ progress }: SpaceshipProps) {
   const groupRef = useRef<Group>(null)
-  const materials = useLoader(MTLLoader, '/models/m3-ship1.mtl')
-  const source = useLoader(OBJLoader, '/models/spaceship.obj', (loader) => {
-    materials.preload()
-    loader.setMaterials(materials)
-  })
-
-  const model = useMemo(() => source.clone(true), [source])
+  const { scene } = useGLTF(MODEL_URL)
+  const model = useMemo(() => scene.clone(true), [scene])
 
   useFrame((_state, delta) => {
     if (!groupRef.current) return
@@ -37,12 +38,15 @@ export function Spaceship({ progress }: SpaceshipProps) {
       {/* model's nose points along local +z; rotate so it faces the direction of travel (+x) */}
       <group rotation={[0, Math.PI / 2, 0]} scale={MODEL_SCALE}>
         <primitive object={model} />
+        {ENGINE_POSITIONS.map((position) => (
+          <mesh key={position.join(',')} position={position}>
+            <sphereGeometry args={[0.5, 12, 12]} />
+            <meshStandardMaterial color="#67e8f9" emissive="#22d3ee" emissiveIntensity={3} />
+          </mesh>
+        ))}
       </group>
-
-      <mesh position={[-0.65, 0, 0]}>
-        <sphereGeometry args={[0.08, 12, 12]} />
-        <meshStandardMaterial color="#fb923c" emissive="#f97316" emissiveIntensity={3} />
-      </mesh>
     </group>
   )
 }
+
+useGLTF.preload(MODEL_URL)
