@@ -1,4 +1,4 @@
-import { Stars } from '@react-three/drei'
+import { OrbitControls, Stars } from '@react-three/drei'
 import { Canvas } from '@react-three/fiber'
 import { Spaceship } from './components/Spaceship'
 import { TypingChallenge } from './components/TypingChallenge'
@@ -17,6 +17,7 @@ function App() {
           <directionalLight position={[-4, 2, 3]} intensity={0.4} color="#88aaff" />
           <Stars radius={50} depth={30} count={2000} factor={2} fade speed={0.5} />
           <Spaceship progress={progress} />
+          <OrbitControls enableZoom enablePan enableRotate makeDefault />
         </Canvas>
       </div>
 
